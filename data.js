@@ -1212,4 +1212,3 @@ const questionBank = [
     "explain": "Người vận hành là người trực tiếp điều khiển và có quyền từ chối nâng nếu thấy mất an toàn."
   }
 ];
-];
