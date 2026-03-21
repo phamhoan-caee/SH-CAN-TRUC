@@ -7,7 +7,7 @@ let studentAnswers = [];    /* Mảng lưu đáp án: [{qIndex:0, selectedAnswer
 let currentQuestionIndex = 0; // Câu hỏi đang hiển thị
 let timeLeft = 1200; // 20 phút (1200 giây)
 let timerInterval;
-
+let isSubmitted = false;
 // --- 3. HÀM BẮT ĐẦU THI ---
 function startQuiz() {
     const name = document.getElementById('studentName').value.trim();
@@ -176,10 +176,24 @@ function startTimer() {
 
 // --- 10. NỘP BÀI ---
 async function submitQuiz() {
-    clearInterval(timerInterval);
-    let score = 0;
+    // 1. Nếu đã nộp rồi thì không cho chạy lại
+    if (isSubmitted) return;
 
-    // Chấm điểm
+    // 2. Xác nhận nộp bài
+    if (!confirm("Bạn có chắc chắn muốn nộp bài?")) return;
+
+    // 3. Khóa trạng thái ngay lập tức
+    isSubmitted = true; 
+    clearInterval(timerInterval);
+    
+    // 4. Ẩn nút nộp bài để tránh bấm nhiều lần
+    const submitBtn = document.querySelector('.btn-submit');
+    if (submitBtn) {
+        submitBtn.style.display = 'none';
+    }
+
+    // 5. Tính điểm
+    let score = 0;
     studentAnswers.forEach(ans => {
         const originalQuestion = selectedQuestions[ans.qIndex];
         if (ans.selectedAnswer === originalQuestion.answer) {
@@ -189,6 +203,7 @@ async function submitQuiz() {
 
     const status = score >= 25 ? "ĐẠT" : "KHÔNG ĐẠT";
     
+    // 6. Hiện thông báo kết quả
     alert(`Chúc mừng! Kết quả của bạn: ${score}/30 câu - Trạng thái: ${status}`);
 
    // --- GỬI DỮ LIỆU VỀ GOOGLE SHEETS ---
