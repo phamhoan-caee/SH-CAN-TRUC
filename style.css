@@ -174,8 +174,8 @@ body {
     transition: var(--transition);
     border: 1px solid transparent;
 }
-.btn-prev { background: white; color: #999; border-color: #eee; }
-.btn-prev:hover { border-color: #ccc; color: #777; }
+.btn-prev { background: var(--btn-blue); color: white; margin-right: auto; } /* Đẩy nút Trước sang trái */
+.btn-prev:hover { background: #0044cc; }
 .btn-next { background: var(--btn-blue); color: white; margin-left: auto; } /* Đẩy nút Tiếp sang phải */
 .btn-next:hover { background: #0044cc; }
 
