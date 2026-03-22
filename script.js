@@ -78,10 +78,10 @@ function showQuestion(index) {
             ${optionsHtml}
         </div>
         
-        <div class="navigation-btns">
-          <button id="prevBtn" class="btn-nav">TRƯỚC</button>
-    <button id="nextBtn" class="btn-nav">TIẾP</button>
-        </div>
+       <div class="quiz-navigation">
+    <button id="prevBtn" class="btn-nav">‹ CÂU HỎI TRƯỚC</button>
+    <button id="nextBtn" class="btn-nav">CÂU HỎI TIẾP THEO ›</button>
+</div>
     `;
 
     // Cập nhật trạng thái lưới câu hỏi (Màu Cam khi đang chọn)
