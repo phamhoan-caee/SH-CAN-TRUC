@@ -14,13 +14,13 @@ function startQuiz() {
     const nameInput = document.getElementById('studentName');
     const idInput = document.getElementById('studentID');
 
-    if (!nameInput.value.trim() || !idInput.value.trim()) {
+    if (!nameInput || !idInput || !nameInput.value.trim() || !idInput.value.trim()) {
         alert("Thầy vui lòng nhập đủ Họ tên và Khóa!");
         return;
     }
 
     if (typeof questionBank === 'undefined') {
-        alert("Lỗi: Không tìm thấy dữ liệu ngân hàng câu hỏi!");
+        alert("Lỗi: Không tìm thấy dữ liệu câu hỏi (data.js)!");
         return;
     }
 
@@ -32,7 +32,9 @@ function startQuiz() {
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('caee-header').style.display = 'flex';
     document.getElementById('quiz-screen').style.display = 'flex';
-    document.getElementById('header-student-info').innerText = `Học viên: ${nameInput.value} - Khóa: ${idInput.value}`;
+    
+    const headerInfo = document.getElementById('header-student-info');
+    if(headerInfo) headerInfo.innerText = `Học viên: ${nameInput.value} - Khóa: ${idInput.value}`;
 
     generateNavigationGrid();
     showQuestion(0);
@@ -44,6 +46,8 @@ function showQuestion(index) {
     currentQuestionIndex = index;
     const q = selectedQuestions[index];
     const content = document.getElementById('quiz-content');
+    if(!content) return;
+
     const selectedText = studentAnswers[index] || null;
 
     let optionsHtml = q.options.map((opt, i) => {
@@ -99,6 +103,7 @@ function prevQuestion() {
 
 function generateNavigationGrid() {
     const grid = document.getElementById('nav-grid');
+    if(!grid) return;
     grid.innerHTML = "";
     selectedQuestions.forEach((_, i) => {
         const item = document.createElement('div');
@@ -123,14 +128,15 @@ function startTimer() {
         timeLeft--;
         let min = Math.floor(timeLeft / 60);
         let sec = timeLeft % 60;
-        document.getElementById('timer').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        const timerElement = document.getElementById('timer');
+        if(timerElement) timerElement.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
         if (timeLeft <= 0) { clearInterval(timerInterval); submitQuiz(true); }
     }, 1000);
 }
 
 async function submitQuiz(force = false) {
     if (isSubmitted) return;
-    if (!force && !confirm("Bạn có chắc muốn nộp bài?")) return;
+    if (!force && !confirm("Thầy có chắc muốn nộp bài?")) return;
     isSubmitted = true;
     clearInterval(timerInterval);
 
@@ -141,5 +147,22 @@ async function submitQuiz(force = false) {
 
     const status = score >= 25 ? "ĐẠT" : "KHÔNG ĐẠT";
     alert(`Kết quả: ${score}/30 câu - Trạng thái: ${status}`);
+    
+    // Gửi dữ liệu về Google Sheets
+    const payload = {
+        name: document.getElementById('studentName').value,
+        id: document.getElementById('studentID').value,
+        score: score,
+        status: status
+    };
+
+    try {
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        });
+    } catch (e) {}
+    
     location.reload();
 }
