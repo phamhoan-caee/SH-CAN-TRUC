@@ -11,16 +11,16 @@ let isSubmitted = false;
 
 // --- 3. HÀM BẮT ĐẦU THI ---
 function startQuiz() {
-    const name = document.getElementById('studentName').value.trim();
-    const id = document.getElementById('studentID').value.trim();
+    const nameInput = document.getElementById('studentName');
+    const idInput = document.getElementById('studentID');
 
-    if (!name || !id) {
-        alert("Vui lòng nhập đủ Họ tên và Khóa!");
+    if (!nameInput.value.trim() || !idInput.value.trim()) {
+        alert("Thầy vui lòng nhập đủ Họ tên và Khóa!");
         return;
     }
 
     if (typeof questionBank === 'undefined') {
-        alert("Lỗi: Không tìm thấy dữ liệu câu hỏi (data.js)!");
+        alert("Lỗi: Không tìm thấy dữ liệu ngân hàng câu hỏi!");
         return;
     }
 
@@ -29,11 +29,10 @@ function startQuiz() {
     studentAnswers = {};
     timeLeft = 1200; 
 
-    // Hiển thị giao diện - ĐÃ SỬA KHỚP ID HTML CỦA THẦY
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('caee-header').style.display = 'flex';
     document.getElementById('quiz-screen').style.display = 'flex';
-    document.getElementById('header-student-info').innerText = `Học viên: ${name} - Khóa: ${id}`;
+    document.getElementById('header-student-info').innerText = `Học viên: ${nameInput.value} - Khóa: ${idInput.value}`;
 
     generateNavigationGrid();
     showQuestion(0);
@@ -44,8 +43,7 @@ function startQuiz() {
 function showQuestion(index) {
     currentQuestionIndex = index;
     const q = selectedQuestions[index];
-    const content = document.getElementById('quiz-content'); // Khớp ID quiz-content
-    
+    const content = document.getElementById('quiz-content');
     const selectedText = studentAnswers[index] || null;
 
     let optionsHtml = q.options.map((opt, i) => {
@@ -65,27 +63,42 @@ function showQuestion(index) {
             </div>
             <div class="question-text">${q.question}</div>
             <div class="options-list">${optionsHtml}</div>
+            <div class="navigation-btns">
+                <button class="btn-nav" onclick="prevQuestion()" 
+                    ${index === 0 ? 'style="visibility:hidden;"' : ''}>‹ TRƯỚC</button>
+                <button class="btn-nav" onclick="nextQuestion()">
+                    ${index === selectedQuestions.length - 1 ? 'NỘP BÀI ›' : 'TIẾP ›'}
+                </button>
+            </div>
         </div>
     `;
     updateGridStatus(index);
 }
 
-// --- 5. HÀM XỬ LÝ CHỌN ĐÁP ÁN ---
 function selectAnswer(element, qIndex, answer) {
     if (isSubmitted) return;
     studentAnswers[qIndex] = answer;
-
     const options = element.parentElement.querySelectorAll('.option-item');
     options.forEach(opt => opt.classList.remove('selected'));
     element.classList.add('selected');
-
     const gridItem = document.getElementById(`grid-item-${qIndex}`);
     if (gridItem) gridItem.classList.add('answered');
 }
 
-// --- 7. TẠO GRID ---
+function nextQuestion() {
+    if (currentQuestionIndex < selectedQuestions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+    } else {
+        submitQuiz();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) showQuestion(currentQuestionIndex - 1);
+}
+
 function generateNavigationGrid() {
-    const grid = document.getElementById('nav-grid'); // Khớp ID nav-grid
+    const grid = document.getElementById('nav-grid');
     grid.innerHTML = "";
     selectedQuestions.forEach((_, i) => {
         const item = document.createElement('div');
@@ -117,7 +130,7 @@ function startTimer() {
 
 async function submitQuiz(force = false) {
     if (isSubmitted) return;
-    if (!force && !confirm("Thầy có chắc chắn muốn nộp bài?")) return;
+    if (!force && !confirm("Bạn có chắc muốn nộp bài?")) return;
     isSubmitted = true;
     clearInterval(timerInterval);
 
